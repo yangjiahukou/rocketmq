@@ -428,7 +428,9 @@ public abstract class NettyRemotingAbstract {
                     } else {
                         responseFuture.setSendRequestOK(false);
                     }
-
+                    // 如何做到请求的响应接受的？
+                    // 发送的时候带上唯一的opaque，返回的时候也返回这个opaque，
+                    // 根据这个opaque来判断
                     responseTable.remove(opaque);
                     responseFuture.setCause(f.cause());
                     responseFuture.putResponse(null);
