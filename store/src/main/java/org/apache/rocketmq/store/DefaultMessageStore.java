@@ -299,16 +299,19 @@ public class DefaultMessageStore implements MessageStore {
     /**
      * @throws Exception
      */
+    //
     @Override
     public void start() throws Exception {
         if (!messageStoreConfig.isEnableDLegerCommitLog() && !this.messageStoreConfig.isDuplicationEnable()) {
             this.haService.init(this);
         }
 
+        // 瞬态存储池
         if (messageStoreConfig.isTransientStorePoolEnable()) {
             this.transientStorePool.init();
         }
-
+        // K2 this.allocateMappedFileService-->AllocateMappedFileService
+        // this.allocateMappedFileService = new AllocateMappedFileService(this);
         this.allocateMappedFileService.start();
 
         this.indexService.start();
@@ -334,6 +337,7 @@ public class DefaultMessageStore implements MessageStore {
         this.doRecheckReputOffsetFromCq();
 
         this.flushConsumeQueueService.start();
+        // K1 真正刷盘在这里
         this.commitLog.start();
         this.storeStatsService.start();
 
@@ -733,6 +737,7 @@ public class DefaultMessageStore implements MessageStore {
                 while (getResult.getBufferTotalSize() <= 0
                     && nextBeginOffset < maxOffset
                     && cqFileNum++ < this.messageStoreConfig.getTravelCqFileNumWhenGetMessage()) {
+                    // K1 获取
                     ReferredIterator<CqUnit> bufferConsumeQueue = consumeQueue.iterateFrom(nextBeginOffset);
 
                     if (bufferConsumeQueue == null) {
@@ -784,7 +789,7 @@ public class DefaultMessageStore implements MessageStore {
 
                                 continue;
                             }
-
+                            // K1 找消息在文件的位置
                             SelectMappedBufferResult selectResult = this.commitLog.getMessage(offsetPy, sizePy);
                             if (null == selectResult) {
                                 if (getResult.getBufferTotalSize() == 0) {

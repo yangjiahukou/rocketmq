@@ -272,6 +272,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
 
         long beginTimeMillis = this.brokerController.getMessageStore().now();
 
+        // K2 处理异步消息
         if (brokerController.getBrokerConfig().isAsyncSendEnable()) {
             CompletableFuture<PutMessageResult> asyncPutMessageFuture;
             if (sendTransactionPrepareMessage) {
@@ -296,8 +297,10 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
         } else {
             PutMessageResult putMessageResult = null;
             if (sendTransactionPrepareMessage) {
+                // K1 事务消息
                 putMessageResult = this.brokerController.getTransactionalMessageService().prepareMessage(msgInner);
             } else {
+                // K1 同步信息需要先存盘
                 putMessageResult = this.brokerController.getMessageStore().putMessage(msgInner);
             }
             handlePutMessageResult(putMessageResult, response, request, msgInner, responseHeader, sendMessageContext, ctx, queueIdInt, beginTimeMillis, mappingContext);
@@ -405,7 +408,7 @@ public class SendMessageProcessor extends AbstractSendMessageProcessor implement
             if (rewriteResult != null) {
                 return rewriteResult;
             }
-
+            // K1 存盘成功，返回response
             doResponse(ctx, request, response);
 
             if (hasSendMessageHook()) {

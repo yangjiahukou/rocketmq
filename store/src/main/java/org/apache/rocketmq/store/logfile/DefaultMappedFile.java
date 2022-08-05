@@ -191,11 +191,13 @@ public class DefaultMappedFile extends AbstractMappedFile {
             PutMessageContext putMessageContext) {
         assert messageExt != null;
         assert cb != null;
-
+        // 当前位置就是0
         int currentPos = this.wrotePosition.get();
 
         if (currentPos < this.fileSize) {
+            // 分配一个缓冲区
             ByteBuffer byteBuffer = appendMessageBuffer().slice();
+            // 标记缓冲区的位置为当前可以写的位置
             byteBuffer.position(currentPos);
             AppendMessageResult result;
             if (messageExt instanceof MessageExtBatch && !((MessageExtBatch) messageExt).isInnerBatch()) {
@@ -203,6 +205,7 @@ public class DefaultMappedFile extends AbstractMappedFile {
                 result = cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos,
                         (MessageExtBatch) messageExt, putMessageContext);
             } else if (messageExt instanceof MessageExtBrokerInner) {
+                // K1 处理单条消息
                 // traditional single message or newly introduced inner-batch message
                 result = cb.doAppend(this.getFileFromOffset(), byteBuffer, this.fileSize - currentPos,
                         (MessageExtBrokerInner) messageExt, putMessageContext);

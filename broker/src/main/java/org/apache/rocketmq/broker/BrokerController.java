@@ -1347,6 +1347,7 @@ public class BrokerController {
 
     protected void startBasicService() throws Exception {
 
+        // K1 this.messageStore --> {@code DefaultMessageStore}
         if (this.messageStore != null) {
             this.messageStore.start();
         }
@@ -1387,6 +1388,7 @@ public class BrokerController {
             this.topicQueueMappingCleanService.start();
         }
 
+        // K1  fileWatchService-->FileWatchService
         if (this.fileWatchService != null) {
             this.fileWatchService.start();
         }
@@ -1439,9 +1441,11 @@ public class BrokerController {
 
         if (!isIsolated && !this.messageStoreConfig.isEnableDLegerCommitLog() && !this.messageStoreConfig.isDuplicationEnable()) {
             changeSpecialServiceStatus(this.brokerConfig.getBrokerId() == MixAll.MASTER_ID);
+            // K1 上报自己的信息给所有的namesrv
             this.registerBrokerAll(true, false, true);
         }
 
+        // K1 定时上报 缺省30s
         scheduledFutures.add(this.scheduledExecutorService.scheduleAtFixedRate(new AbstractBrokerRunnable(this.getBrokerIdentity()) {
             @Override
             public void run2() {

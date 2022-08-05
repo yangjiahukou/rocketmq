@@ -236,6 +236,7 @@ public class MessageStoreConfig {
      * The master broker is considered one of the in-sync replicas, and it's included in the count of total.
      * If a master broker is ASYNC_MASTER, inSyncReplicas will be ignored.
      */
+    // K1 默认是不写入从副本就直接返回。master也代表一个acknum。
     @ImportantField
     private int inSyncReplicas = 1;
 

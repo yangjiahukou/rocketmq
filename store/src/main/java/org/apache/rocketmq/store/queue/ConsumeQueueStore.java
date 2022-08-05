@@ -251,6 +251,7 @@ public class ConsumeQueueStore {
 
     private ConsumeQueueInterface doFindOrCreateConsumeQueue(String topic, int queueId) {
         ConcurrentMap<Integer, ConsumeQueueInterface> map = consumeQueueTable.get(topic);
+        // K1 客户端topic没有在缓存中consumeQueueTable，则加进去
         if (null == map) {
             ConcurrentMap<Integer, ConsumeQueueInterface> newMap = new ConcurrentHashMap<>(128);
             ConcurrentMap<Integer, ConsumeQueueInterface> oldMap = consumeQueueTable.putIfAbsent(topic, newMap);
